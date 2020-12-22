@@ -1,0 +1,224 @@
+TITLE:: DistanceMixer
+summary:: GUI for FOA spatialiasation based on distance
+categories:: Undocumented classes
+related:: Classes/DistanceFilter, Guides/Intro-to-the-ATK, Classes/PathName#-makeBufDict
+
+DESCRIPTION::
+Tool to assist the construction of aural landscapes
+
+CLASSMETHODS::
+
+METHOD:: new
+Create GUI and control sound field position
+
+ARGUMENT:: numviews
+The total number of sound sources you wish to spatialise.
+
+ARGUMENT:: bufferDict
+The directory of audio files to spatialise. This uses Eli Fieldsteel's makeBufDict extension to the Pathname class.
+
+ARGUMENT:: distMin
+The minimum distance in metres of each source from the imagined listener's position
+
+ARGUMENT:: distMax
+The maximum distance in metres of each source from the imagined listener's position
+
+ARGUMENT:: wet
+The ratio of direct and reverberant sound for all sound sources
+
+ARGUMENT:: out
+The bus that feeds the ambisonic encoder
+
+ARGUMENT:: encoder
+An ambisonic encoder appropriate to the channel configuration of the input directory set using the bufDict argument. This requires all input sources to have the same number of channels. Separate instances of the DistanceMixer and an appropriate encoder are required if using different input channel configurations.
+
+ARGUMENT:: group
+The gropup on which to place the DistanceMixer. Best practice is to create separate groups for encoding and decoding and place the DistanceMixer on the encoding group that sits before the decoding group.
+
+ARGUMENT:: fxsend
+The bus used to feed a reverberation unit.
+
+returns:: A new instance of the DistanceMixer interface to control the spatialisation parameters of the number of sound sources specified via the numViews argument.
+
+
+/*INSTANCEMETHODS::
+
+METHOD:: distMin
+(describe method here)
+
+returns:: (describe returnvalue here)
+
+METHOD:: distMax
+(describe method here)
+
+returns:: (describe returnvalue here)
+
+METHOD:: wet
+(describe method here)
+
+returns:: (describe returnvalue here)
+
+METHOD:: encoder
+(describe method here)
+
+returns:: (describe returnvalue here)
+
+METHOD:: bufferDict
+(describe method here)
+
+returns:: (describe returnvalue here)
+
+METHOD:: out
+(describe method here)
+
+returns:: (describe returnvalue here)
+
+METHOD:: group
+(describe method here)
+
+returns:: (describe returnvalue here)
+
+METHOD:: numviews
+(describe method here)
+
+returns:: (describe returnvalue here)
+
+METHOD:: fxsend
+(describe method here)
+
+returns:: (describe returnvalue here)*/
+
+
+EXAMPLES::
+
+code::
+(
+//setup example - copy into editor
+
+s = Server.local;
+s.options.numOutputBusChannels_(4);
+s.options.numInputBusChannels_(4);
+s.options.memSize = 2.pow(20);
+s.options.numWireBufs = 1024;
+
+~busses = {
+	~bus = Dictionary.new;
+	~bus.add(\encBus -> Bus.audio(s, 4));
+	~bus.add(\reverbBus -> Bus.audio(s, 4));
+};
+
+~reset = {
+	s.newBusAllocators;
+	ServerBoot.removeAll;
+	ServerTree.removeAll;
+	ServerQuit.removeAll;
+};
+
+~nodes ={
+	s.bind({
+		~decGroup = Group.new;
+		~encGroup = Group.before(~decGroup);
+		~fxGroup = Group.after(~encGroup);
+		~decodeSynth = Synth(\decodeSynth, [\inBus,  ~bus[\encBus]], ~decGroup);
+		~reverbSynth = Synth(\revAmb, [\inbus, ~bus[\reverbBus],\out, ~bus[\encBus]], ~fxGroup);
+	});
+};
+
+ServerBoot.add(~busses);
+ServerQuit.add(~reset, ~decoder.free);
+
+~fftsize = 2048;
+
+s.waitForBoot({
+
+	{
+		var rirW, rirX, rirY, rirZ, bufsize;
+
+		//supply FOA FuMa B-format Impulse response
+
+		rirW = Buffer.readChannel(s,"/Volumes/Projects/Projects/IRs/Lady-Chapel-StAlbans-Cathedral/wav/stalbans_b_wxyz.wav", channels: [0]);
+		rirX = Buffer.readChannel(s,"/Volumes/Projects/Projects/IRs/Lady-Chapel-StAlbans-Cathedral/wav/stalbans_b_wxyz.wav", channels: [1]);
+		rirY = Buffer.readChannel(s,"/Volumes/Projects/Projects/IRs/Lady-Chapel-StAlbans-Cathedral/wav/stalbans_b_wxyz.wav", channels: [2]);
+		rirZ = Buffer.readChannel(s,"/Volumes/Projects/Projects/IRs/Lady-Chapel-StAlbans-Cathedral/wav/stalbans_b_wxyz.wav", channels: [3]);
+
+		s.sync;
+
+		bufsize = PartConv.calcBufSize(~fftsize, rirW);
+
+		~rirWspectrum= Buffer.alloc(s, bufsize, 1);
+		~rirXspectrum= Buffer.alloc(s, bufsize, 1);
+		~rirYspectrum= Buffer.alloc(s, bufsize, 1);
+		~rirZspectrum= Buffer.alloc(s, bufsize, 1);
+
+		~rirWspectrum.preparePartConv(rirW, ~fftsize);
+		~rirXspectrum.preparePartConv(rirX, ~fftsize);
+		~rirYspectrum.preparePartConv(rirY, ~fftsize);
+		~rirZspectrum.preparePartConv(rirZ, ~fftsize);
+
+		s.sync;
+
+		rirW.free;
+		rirX.free;
+		rirY.free;
+		rirZ.free;
+
+	}.fork;
+
+	s.sync;
+
+	~decoder = FoaDecoderKernel.newCIPIC(21, s, 48000); //Binaural decoder
+
+	s.sync;
+
+	s.sync;
+
+	SynthDef(\decodeSynth, {
+		arg inBus, outbus = 0;
+		var foa;
+		foa = In.ar(inBus, 4);
+		foa = FoaDecode.ar(foa, ~decoder);
+		ReplaceOut.ar(outbus, foa);
+	}).add;
+
+	SynthDef(\revAmb, {
+		arg inbus, out;
+		var convsig, sig;
+		sig = In.ar(inbus, 4);
+
+		sig = FoaDecode.ar(sig, FoaDecoderMatrix.newBtoA(\flu));
+
+		convsig = [
+			PartConv.ar(sig[0], ~fftsize, ~rirWspectrum.bufnum),
+			PartConv.ar(sig[1], ~fftsize, ~rirXspectrum.bufnum),
+			PartConv.ar(sig[2], ~fftsize, ~rirYspectrum.bufnum),
+			PartConv.ar(sig[3], ~fftsize, ~rirZspectrum.bufnum)
+		];
+		convsig = FoaEncode.ar(convsig, FoaEncoderMatrix.newAtoB(\flu));
+
+		Out.ar(out, convsig);
+	}).add;
+
+	ServerTree.add(~nodes);
+
+	s.freeAll;
+
+	s.sync;
+
+	s.plotTree;
+
+	s.sync;
+
+	s.meter;
+
+	"Setup complete. Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+}))
+
+
+// load buffers
+~bufs = PathName(/*path to your folder of sounds !*/).makeBufDict
+
+~encoder = FoaEncoderKernel.newSuper(); //stereo encoder for stereo files - change as necessary
+
+// create DistanceMixer
+d = DistanceMixer.new(10, ~bufs, 1, 20, 0.8, ~bus[\encBus], ~encoder, ~encGroup, ~bus[\reverbBus])
+::
