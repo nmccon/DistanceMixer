@@ -1,0 +1,44 @@
+TITLE:: DistanceFilter
+summary:: Simulate the effect of distance on a sound source using a OnePole filter.
+categories:: Undocumented classes, UGens>Undocumented
+related:: Classes/DistanceMixer, Classes/Doppler
+
+DESCRIPTION::
+The formular to calculate the low-pass filter coefficient comes from Wouter Snoei's wavefield synthesis application, WFSCollider https://sourceforge.net/projects/wfscollider/
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+Instantiate new DistanceFilter
+
+ARGUMENT:: distance
+Distance of sound source
+
+ARGUMENT:: in
+Input signal
+
+returns:: OnePole filter
+
+
+INSTANCEMETHODS::
+
+
+EXAMPLES::
+
+code::
+(
+SynthDef(\dopplerDistance, {| listenerPosition = 2, speed 0.25, dist = 30, out = 0, fxsend|
+	var doppler, sig;
+	doppler = Doppler.new(listenerPosition, speed, dist, "noise");
+	sig = SinOsc.ar(440 * doppler.pitchRatio, 0, doppler.amplitude); //very boring sound source
+	sig = DistanceFilter.ar(doppler.distance, sig); //distance filtering
+	sig = doppler.delay(sig); //delay based on distance
+	sig = Pan2.ar(sig, doppler.azimuth); //random stereo panning. Can easily be scaled to change azimuth in ambisonics
+	Out.ar(fxsend, sig * (1 - doppler.mix)); //if using a reverb synth  - adjust wet/dry based on doppler's amplitude
+	Out.ar(out, sig)
+}).add
+)
+
+x = Synth(\dopplerDistance)
+::
