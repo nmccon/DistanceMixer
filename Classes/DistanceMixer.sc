@@ -17,13 +17,13 @@ DistanceMixer {
 		synthList = Array.fill(numviews);
 		keys = bufferDict.keys.asArray;
 
-		synthdef = 	SynthDef(\distance, { |distance = /*4,*/ 1, rate = 1, buf, spos = 0.0, theta = 0, phi = 0, gate = 1, amp = 1, fxout|
-			var amplitude, azimuth, sig, foa, /*freq,*/ mix, numChans;
+		synthdef = 	SynthDef(\distance, { |distance = 1, rate = 1, buf, spos = 0.0, theta = 0, phi = 0, gate = 1, amp = 1, fxout|
+			var amplitude, azimuth, sig, foa, mix, numChans;
 
 			numChans = encoder.numInputs;
 
-			//amplitude = distance.reciprocal.squared;
-			amplitude = distance.reciprocal;
+			amplitude = distance.reciprocal.squared;
+			//amplitude = distance.reciprocal;
 			mix = distance.linlin(distMin, distMax, 1.0, wet);
 			azimuth = distance.linlin(distMin, distMax, pi/2, 0);
 
