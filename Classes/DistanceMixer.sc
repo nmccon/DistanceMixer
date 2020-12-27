@@ -1,10 +1,9 @@
 DistanceMixer {
 	var >numviews, <bufferDict, <>distMin, <>distMax, <>wet, <>out, <>encoder, <>group, <>fxsend;
-	var testval;
 
 	*new {|numviews = 10, bufferDict, distMin = 1, distMax = 30, wet = 0.85, out, encoder, group, fxsend|
 
-		var win, views, title, plybtn, bufpop, bufnumbox, buftxt, changebtn, distlabel, distsld, distbx, thetalabel, thetasld, thetabx, philabel, phisld, phibx, 	ratelabel, ratesld, ratebx;
+		var win, views, title, plybtn, bufpop, bufnumbox, buftxt, changebtn, distlabel, distsld, distbx, thetalabel, thetasld, thetabx, philabel, phisld, phibx, ratelabel, ratesld, ratebx;
 
 		var synthList, keys;
 		var synthdef;
@@ -12,7 +11,7 @@ DistanceMixer {
 		var thetaSpec = ControlSpec(pi, -pi, \lin, 0.0, units: "radians");
 		var phiSpec = ControlSpec(-pi/2, pi/2, \lin, 0.0,  units: "radians");
 		var rateSpec = ControlSpec(0.125, 8, \exp, 0, 1, 1);
-		var dialogbtn, dialogbtnLay, viewLay; //temp vars
+		var dialogbtn, dialogbtnLay, viewLay;
 
 		synthList = Array.fill(numviews);
 		keys = bufferDict.keys.asArray;
