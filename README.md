@@ -5,8 +5,8 @@ The DistanceMixer is a software artefact designed to assist in the composition o
 
 Dependencies:
 1. [Ambisonic Toolkit](www.ambisonictoolkit.net)
-2. Eli Fieldsteel's makeBufDict instance method for PathName (https://gist.github.com/elifieldsteel/396cd1326d3c981ba1fd2a3c47d90ea3).
+2. [Eli Fieldsteel's makeBufDict instance method for PathName](https://gist.github.com/elifieldsteel/396cd1326d3c981ba1fd2a3c47d90ea3).
 
-Reverberation:
+Reverberation:.  
 The example in the help documentation shows a simple convolution function. This class does not include any B-format impulse responses, the user must supply their own FOA FuMa IRs. As the calculations determining the ratio of dry and wet signals occur independently of the convolution process, the user is free to implement their own reverberation solutions, including third-party VST products, provided they operate on FuMa FOA signals.  
 
