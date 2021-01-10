@@ -10,3 +10,5 @@ Dependencies:
 Reverberation:    
 The example in the help documentation shows a simple convolution function. This class does not include any B-format impulse responses, the user must supply their own FOA FuMa IRs. As the calculations determining the ratio of dry and wet signals occur independently of the convolution process, the user is free to implement their own reverberation solutions, including third-party VST products, provided they operate on FuMa FOA signals.  
 
+![DM GUI](https://drive.google.com/file/d/1k4p9JPWZDASEh8lKZD14qH3beKsFQsPp/view?usp=sharing)
+
