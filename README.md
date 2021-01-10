@@ -1,5 +1,5 @@
 # DistanceMixer
-GUI for FOA spatialiasation based on distance
+### GUI for FOA spatialiasation based on distance
 
 The DistanceMixer is a software artefact designed to assist in the composition of fixed media works that seek to integrate environmental sounds and structures into music. It represents an attempt at merging a variety of compositional aesthetics into a single tool. It aims to fuse aspects of acoustic ecology with electroacoustic techniques by allowing the user to structure musical phrases and textures with clearly partitioned spectral and spatial niches using a basic form of mimesis to imply realistic spatial impressions and behaviour.
 
