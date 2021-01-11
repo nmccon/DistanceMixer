@@ -1,32 +1,32 @@
 DistanceMixer {
-	var >numviews, <bufferDict, <>distMin, <>distMax, <>wet, <>out, <>encoder, <>group, <>fxsend;
+	var numviews, bufferDict, distMin, distMax, wet, out, encoder, group, fxsend;
+	var synthDef, synthList, keys;
+	var distanceSpec, thetaSpec, phiSpec, rateSpec;
+	var win, views;
+	var title, plybtn, bufpop, bufnumbox, buftxt, changebtn, distlabel, distsld, distbx;
+	var thetalabel, thetasld, thetabx, philabel, phisld, phibx, ratelabel, ratesld, ratebx;
+	var dialogbtn, dialogbtnLay, viewLay;
 
-	*new {|numviews = 10, bufferDict, distMin = 1, distMax = 30, wet = 0.85, out, encoder, group, fxsend|
+	*new { |numviews = 10, bufferDict, distMin = 1, distMax = 30, wet = 0.85, out, encoder, group, fxsend|
+		^super.newCopyArgs(numviews, bufferDict, distMin, distMax, wet, out, encoder, group, fxsend).init
+	}
 
-		var win, views, title, plybtn, bufpop, bufnumbox, buftxt, changebtn, distlabel, distsld, distbx, thetalabel, thetasld, thetabx, philabel, phisld, phibx, ratelabel, ratesld, ratebx;
-
-		var synthList, keys;
-		var synthdef;
-		var distanceSpec = ControlSpec(distMin, distMax, \lin, 0.0, units: "meters");
-		var thetaSpec = ControlSpec(pi, -pi, \lin, 0.0, units: "radians");
-		var phiSpec = ControlSpec(-pi/2, pi/2, \lin, 0.0,  units: "radians");
-		var rateSpec = ControlSpec(0.125, 8, \exp, 0, 1, 1);
-		var dialogbtn, dialogbtnLay, viewLay;
-
+	init {
 		synthList = Array.fill(numviews);
 		keys = bufferDict.keys.asArray;
+		distanceSpec = ControlSpec(distMin, distMax, \lin, 0.0, units: "meters");
+		thetaSpec = ControlSpec(pi, -pi, \lin, 0.0, units: "radians");
+		phiSpec = ControlSpec(-pi/2, pi/2, \lin, 0.0,  units: "radians");
+		rateSpec = ControlSpec(0.125, 8, \exp, 0, 1, 1);
 
-		synthdef = 	SynthDef(\distance, { |distance = 1, rate = 1, buf, spos = 0.0, theta = 0, phi = 0, gate = 1, amp = 1, fxout|
-			var amplitude, azimuth, sig, foa, mix, numChans;
+		synthDef = SynthDef(\distance, { |distance = 1, rate = 1, buf, spos = 0.0, theta = 0, phi = 0, gate = 1, amp = 1, fxout|
 
-			numChans = encoder.numInputs;
+			var sig, foa;
+			var amplitude = distance.reciprocal.squared;
+			var mix = distance.linlin(distMin, distMax, 1.0, wet);
+			var azimuth = distance.linlin(distMin, distMax, pi/2, 0);
 
-			amplitude = distance.reciprocal.squared;
-			//amplitude = distance.reciprocal;
-			mix = distance.linlin(distMin, distMax, 1.0, wet);
-			azimuth = distance.linlin(distMin, distMax, pi/2, 0);
-
-			sig = PlayBuf.ar(numChans, buf, rate, 1.0, spos, loop:1) * amplitude;
+			sig = PlayBuf.ar(this.numInputs, buf, rate, 1.0, spos, loop:1) * amplitude;
 			sig = DistanceFilter.ar(distance, sig);
 			sig = sig * EnvGen.kr(Env.cutoff, gate, doneAction: Done.freeSelf);
 
@@ -39,6 +39,13 @@ DistanceMixer {
 
 		}, [0.1, 0.1, 0, 0, 0.1, 0.1, 0, 0.1, 0.1]
 		).add;
+
+		^this.makeGUI
+	}
+
+	numInputs { ^encoder.numInputs}
+
+	makeGUI {
 
 		win = Window("Distance Mixer", 100@700, scroll: false).front;
 		win.onClose_({
@@ -67,11 +74,10 @@ DistanceMixer {
 			.states_([["Start", Color.black, Color.white],["Stop", Color.black, Color.clear]])
 			.action_({|btn|
 				if(btn.value==1) {
-					synthList.put(n,Synth(\distance, [
+					synthList.put(n, Synth(\distance, [
 						\buf, bufferDict[keys[bufpop[n].value].asSymbol][bufnumbox[n].value],
 						\out, out,
 						\fxout, fxsend
-
 					],group)
 					);
 					distsld[n].valueAction_(distsld[n].value);
@@ -118,7 +124,9 @@ DistanceMixer {
 			Button(views[n])
 			.states_([["Change Buffer", Color.black, Color.white]])
 			.action_({|btn|
-				if(btn.value == 0) {synthList[n].set(\buf, bufferDict[keys[bufpop[n].value].asSymbol][bufnumbox[n].value])} {};
+				if(btn.value == 0) {
+					synthList[n].set(\buf, bufferDict[keys[bufpop[n].value].asSymbol][bufnumbox[n].value])
+				} {};
 			})
 		};
 
@@ -286,16 +294,13 @@ DistanceMixer {
 		dialogbtnLay = HLayout(HLayout(*dialogbtn), []);
 
 		win.layout_(VLayout(viewLay, dialogbtnLay));
-
-		^super.newCopyArgs(numviews, bufferDict, distMin, distMax, wet, out, encoder, group, fxsend)//.modWindow(ratesld[0].value)
 	}
 
-	/*	modWindow {|arga|
-	var window = Window("", 400@400).front;
-	Slider(window).value_(arga);
-
-	}*/
-
+	oscTest {|view, port = 57120, path|
+		OSCdef(\distTest, {|msg, time, addr, port|
+			{distsld[view].valueAction_(msg[1])}.defer
+		}, path.asSymbol)
+	}
 
 }
 
