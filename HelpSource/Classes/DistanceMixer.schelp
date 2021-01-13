@@ -1,5 +1,5 @@
 TITLE:: DistanceMixer
-summary:: GUI for FOA spatialiasation based on distance
+summary:: GUI for FOA spatialiasation based on imaginary distances
 categories:: Undocumented classes
 related:: Classes/DistanceFilter, Guides/Intro-to-the-ATK, Classes/PathName#-makeBufDict
 
@@ -46,8 +46,6 @@ INSTANCEMETHODS::
 METHOD:: makeGUI
 Called internally to create all necesssary GUI elements
 
-returns:: (describe returnvalue here)
-
 METHOD:: numInputs
 Called internally to set number of channels for playback and encoding based on the decoder type
 
@@ -56,7 +54,7 @@ returns:: encoder.numInputs
 METHOD:: oscTest
 Creates separate GUI window to send OSC data to another application. Enter the path in the text field.
 
-returns:: (GUI and OSCdefs
+returns:: GUI and OSCdefs
 
 
 EXAMPLES::
@@ -190,5 +188,5 @@ s.waitForBoot({
 ~encoder = FoaEncoderKernel.newSuper(); //stereo encoder for stereo files - change as necessary
 
 // create DistanceMixer
-d = DistanceMixer.new(10, ~bufs, 1, 20, 0.8, ~bus[\encBus], ~encoder, ~encGroup, ~bus[\reverbBus])
+d = DistanceMixer.new(10, ~bufs, 1, 10, 0.1, ~bus[\encBus], ~encoder, ~encGroup, ~bus[\reverbBus])
 ::
