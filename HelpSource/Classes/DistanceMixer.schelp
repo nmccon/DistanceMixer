@@ -41,52 +41,22 @@ The bus used to feed a reverberation unit.
 returns:: A new instance of the DistanceMixer interface to control the spatialisation parameters of the number of sound sources specified via the numViews argument.
 
 
-/*INSTANCEMETHODS::
+INSTANCEMETHODS::
 
-METHOD:: distMin
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: distMax
-(describe method here)
+METHOD:: makeGUI
+Called internally to create all necesssary GUI elements
 
 returns:: (describe returnvalue here)
 
-METHOD:: wet
-(describe method here)
+METHOD:: numInputs
+Called internally to set number of channels for playback and encoding based on the decoder type
 
-returns:: (describe returnvalue here)
+returns:: encoder.numInputs
 
-METHOD:: encoder
-(describe method here)
+METHOD:: oscTest
+Creates separate GUI window to send OSC data to another application. Enter the path in the text field.
 
-returns:: (describe returnvalue here)
-
-METHOD:: bufferDict
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: out
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: group
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: numviews
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: fxsend
-(describe method here)
-
-returns:: (describe returnvalue here)*/
+returns:: (GUI and OSCdefs
 
 
 EXAMPLES::
