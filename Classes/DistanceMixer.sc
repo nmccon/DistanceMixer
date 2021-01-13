@@ -296,10 +296,205 @@ DistanceMixer {
 		win.layout_(VLayout(viewLay, dialogbtnLay));
 	}
 
-	oscTest {|view, port = 57120, path|
-		OSCdef(\distTest, {|msg, time, addr, port|
-			{distsld[view].valueAction_(msg[1])}.defer
-		}, path.asSymbol)
+	//OSC SC -> Reaper
+
+	oscTest {
+		var oscWin, oscWinLay, oscView, title;
+		var playTxt, distTxt, bufTxt, thetaTxt, phiTxt, rateTxt;
+		var playBtn, distBtn, bufBtn, thetaBtn, phiBtn, rateBtn;
+
+		oscWin = Window("osc", resizable: true, scroll: true)
+		.alpha_(0.85)
+		.front;
+
+		oscView = Array.fill(numviews, {|v|
+			v = CompositeView(oscWin, oscWin.bounds)
+			.resize_(2)
+			.background_(if(v%2 == 0) {Color.new255(78, 91, 102)} {Color.new255(67, 77, 87)});
+			v.layout_(VLayout())
+		});
+
+		title = numviews.collect{|n|
+			StaticText(oscView[n])
+			.string_("Synth "++n)
+			.stringColor_(Color.white)
+			.align_(\center)
+
+		};
+
+		playTxt = numviews.collect{|n|
+			EZText(
+				oscView[n],
+				16@20,
+				"start",
+				{|ez| ez.value.postln},
+				labelWidth:30
+			)
+		};
+
+		playBtn = numviews.collect{|n|
+			Button(oscView[n], 16@20)
+			.states_([
+				["Map", Color.green],
+				["Free", Color.red],
+			])
+			.action_({|btn|
+				if(btn.value == 1) {
+					OSCdef(playTxt[n], {|msg, time, addr, port = 51270|
+						{plybtn[n].valueAction_(msg[1].value)}.defer;
+					}, playTxt[n].value.asSymbol);
+				} {
+					OSCdef(playTxt[n]).free;
+					{plybtn[n].value_(0)}.defer;
+				}
+			})
+		};
+
+		bufTxt = numviews.collect{|n|
+			EZText(
+				oscView[n],
+				16@20,
+				"buf",
+				{|ez| ez.value.postln},
+				labelWidth:30
+			)
+		};
+
+		bufBtn = numviews.collect{|n|
+			Button(oscView[n], 16@20)
+			.states_([
+				["Map", Color.green],
+				["Free", Color.red],
+			])
+			.action_({|btn|
+				if(btn.value == 1) {
+					OSCdef(bufTxt[n], {|msg, time, addr, port = 51270|
+						{changebtn[n].valueAction_(msg[1].value)}.defer;
+					}, bufTxt[n].value.asSymbol);
+				} {
+					OSCdef(bufTxt[n]).free;
+					{changebtn[n].value_(0)}.defer;
+				}
+			})
+		};
+
+		distTxt = numviews.collect{|n|
+			EZText(
+				oscView[n],
+				16@20,
+				"dist",
+				{|ez| ez.value.postln},
+				labelWidth:30
+			)
+		};
+
+		distBtn = numviews.collect{|n|
+			Button(oscView[n], 16@20)
+			.states_([
+				["Map", Color.green],
+				["Free", Color.red],
+			])
+			.action_({|btn|
+				if(btn.value == 1) {
+					OSCdef(distTxt[n], {|msg, time, addr, port = 51270|
+						{distsld[n].valueAction_(msg[1].value)}.defer;
+					}, distTxt[n].value.asSymbol);
+				} {
+					OSCdef(distTxt[n]).free;
+					{distsld[n].value_(0)}.defer;
+				}
+			})
+		};
+
+		thetaTxt = numviews.collect{|n|
+			EZText(
+				oscView[n],
+				16@20,
+				"theta",
+				{|ez| ez.value.postln},
+				labelWidth:30
+			)
+		};
+
+		thetaBtn = numviews.collect{|n|
+			Button(oscView[n], 16@20)
+			.states_([
+				["Map", Color.green],
+				["Free", Color.red],
+			])
+			.action_({|btn|
+				if(btn.value == 1) {
+					OSCdef(thetaTxt[n], {|msg, time, addr, port = 51270|
+						{thetasld[n].valueAction_(msg[1].value)}.defer;
+					}, thetaTxt[n].value.asSymbol);
+				} {
+					OSCdef(thetaTxt[n]).free;
+					{thetasld[n].value_(0)}.defer;
+				}
+			})
+		};
+
+		phiTxt = numviews.collect{|n|
+			EZText(
+				oscView[n],
+				16@20,
+				"phi",
+				{|ez| ez.value.postln},
+				labelWidth:30
+			)
+		};
+
+		phiBtn = numviews.collect{|n|
+			Button(oscView[n], 16@20)
+			.states_([
+				["Map", Color.green],
+				["Free", Color.red],
+			])
+			.action_({|btn|
+				if(btn.value == 1) {
+					OSCdef(phiTxt[n], {|msg, time, addr, port = 51270|
+						{phisld[n].valueAction_(msg[1].value)}.defer;
+					}, phiTxt[n].value.asSymbol);
+				} {
+					OSCdef(phiTxt[n]).free;
+					{phisld[n].value_(0)}.defer;
+				}
+			})
+		};
+
+		rateTxt = numviews.collect{|n|
+			EZText(
+				oscView[n],
+				16@20,
+				"rate",
+				{|ez| ez.value.postln},
+				labelWidth:30
+			)
+		};
+
+		rateBtn = numviews.collect{|n|
+			Button(oscView[n], 16@20)
+			.states_([
+				["Map", Color.green],
+				["Free", Color.red],
+			])
+			.action_({|btn|
+				if(btn.value == 1) {
+					OSCdef(rateTxt[n], {|msg, time, addr, port = 51270|
+						{ratesld[n].valueAction_(msg[1].value)}.defer;
+					}, rateTxt[n].value.asSymbol);
+				} {
+					OSCdef(rateTxt[n]).free;
+					{ratesld[n].value_(0)}.defer;
+				}
+			})
+		};
+
+		oscWinLay = HLayout(*oscView);
+
+		oscWin.layout_(oscWinLay);
+
+
 	}
 
 }
