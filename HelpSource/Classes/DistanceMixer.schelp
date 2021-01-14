@@ -46,6 +46,7 @@ INSTANCEMETHODS::
 METHOD:: makeGUI
 Called internally to create all necesssary GUI elements
 
+
 METHOD:: numInputs
 Called internally to set number of channels for playback and encoding based on the decoder type
 
