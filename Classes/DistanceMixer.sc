@@ -1,3 +1,5 @@
+//DistanceMixer
+
 DistanceMixer {
 	var numviews, bufferDict, distMin, distMax, wet, out, encoder, group, fxsend;
 	var synthDef, synthList, keys;
@@ -296,7 +298,7 @@ DistanceMixer {
 		win.layout_(VLayout(viewLay, dialogbtnLay));
 	}
 
-	//OSC SC -> Reaper
+	//OSC: Reaper -> SC
 
 	oscTest {
 		var oscWin, oscWinLay, oscView, title;
@@ -491,11 +493,90 @@ DistanceMixer {
 		};
 
 		oscWinLay = HLayout(*oscView);
-
 		oscWin.layout_(oscWinLay);
-
-
 	}
 
+}
+
+//DistanceFilter
+
+DistanceFilter {
+	*ar { | distance = (100), in |
+		var freq = ( 100000/distance).clip(20, 100000);
+		^ OnePole.ar(in, (-2pi * (freq/SampleRate.ir)).exp);
+	}
+}
+
+
+/*
+Eli Fieldsteel's 'makeBufDict instance method for PathName:
+https://gist.github.com/elifieldsteel/396cd1326d3c981ba1fd2a3c47d90ea3
+The DistanceMixer depends on this method to correctly access buffers via the GUI.
+*/
+
++ PathName {
+
+	//makeBufDict takes an instance of PathName (pointing to a folder)
+	//and iterates over all items within. This method expects all
+	//subfolders to either contain all audio files or all folders.
+	//When a folder of subfolders is found, this method calls itself
+	//recursively. When a folder of audio files is found, the method
+	//adds a new key to a running Dictionary, using the name of the
+	//parent folder, and places at that key an Array of Buffers. The
+	//method assumes the default server is already running and warns
+	//the user if this is not the case.
+	makeBufDict {
+
+		//dict is initally an empty dictionary, but is modified
+		//as folders of soundfiles are found and added to dict.
+		//This method is recursive in nature, and the modified
+		//dictionary is passed back to the method on each
+		//recursive evaluation.
+		arg dict = Dictionary.new, warnPosted=false, mono=false;
+
+		//Warn if the default server is not running. 'warnPosted'
+		//exists to prevent multiple warnings.
+		if(
+			Server.default.serverRunning.not && warnPosted.not,
+			{
+				"Server not running".warn;
+				warnPosted = true;
+			}
+		);
+
+		if(
+			//Check whether the folder contains folders or files
+			this.entries.select(_.isFile).size == 0,
+
+			//If contents are all folders, recur, passing the
+			//running Dictionary and warn boolean in as arguments.
+			{
+				this.entries.do{
+					|n|
+					n.makeBufDict(dict, warnPosted, mono);
+				}
+			},
+
+			//If contents are all files, add a new key to 'dict' using
+			//the name of the parent folder, and place at that key
+			//an Array of Buffers
+			{
+				var parentPath, bufs;
+				parentPath = this.allFolders[this.allFolders.size-1].asSymbol;
+				bufs = this.entries.collect(_.fullPath).collect{
+					|i|
+					if(
+						mono,
+						{Buffer.readChannel(Server.default,i,channels:[0])},
+						{Buffer.read(Server.default,i)}
+					);
+				};
+				dict.add(parentPath -> bufs);
+			};
+		);
+
+		//return the instance of Dictionary.
+		^dict;
+	}
 }
 
