@@ -337,13 +337,13 @@ DistanceMixer {
 				"start",
 				{|ez| ez.value.postln},
 				labelWidth:30
-			)
+			).setColors(stringColor: Color.white);
 		};
 
 		playBtn = numviews.collect{|n|
 			Button(oscView[n], 16@20)
 			.states_([
-				["Map", Color.green],
+				["Map", Color.black],
 				["Free", Color.red],
 			])
 			.action_({|btn|
@@ -365,13 +365,13 @@ DistanceMixer {
 				"buf",
 				{|ez| ez.value.postln},
 				labelWidth:30
-			)
+			).setColors(stringColor: Color.white);
 		};
 
 		bufBtn = numviews.collect{|n|
 			Button(oscView[n], 16@20)
 			.states_([
-				["Map", Color.green],
+				["Map", Color.black],
 				["Free", Color.red],
 			])
 			.action_({|btn|
@@ -393,13 +393,13 @@ DistanceMixer {
 				"dist",
 				{|ez| ez.value.postln},
 				labelWidth:30
-			)
+			).setColors(stringColor: Color.white);
 		};
 
 		distBtn = numviews.collect{|n|
 			Button(oscView[n], 16@20)
 			.states_([
-				["Map", Color.green],
+				["Map", Color.black],
 				["Free", Color.red],
 			])
 			.action_({|btn|
@@ -421,13 +421,13 @@ DistanceMixer {
 				"theta",
 				{|ez| ez.value.postln},
 				labelWidth:30
-			)
+			).setColors(stringColor: Color.white);
 		};
 
 		thetaBtn = numviews.collect{|n|
 			Button(oscView[n], 16@20)
 			.states_([
-				["Map", Color.green],
+				["Map", Color.black],
 				["Free", Color.red],
 			])
 			.action_({|btn|
@@ -449,13 +449,13 @@ DistanceMixer {
 				"phi",
 				{|ez| ez.value.postln},
 				labelWidth:30
-			)
+			).setColors(stringColor: Color.white);
 		};
 
 		phiBtn = numviews.collect{|n|
 			Button(oscView[n], 16@20)
 			.states_([
-				["Map", Color.green],
+				["Map", Color.black],
 				["Free", Color.red],
 			])
 			.action_({|btn|
@@ -477,13 +477,13 @@ DistanceMixer {
 				"rate",
 				{|ez| ez.value.postln},
 				labelWidth:30
-			)
+			).setColors(stringColor: Color.white);
 		};
 
 		rateBtn = numviews.collect{|n|
 			Button(oscView[n], 16@20)
 			.states_([
-				["Map", Color.green],
+				["Map", Color.black],
 				["Free", Color.red],
 			])
 			.action_({|btn|
