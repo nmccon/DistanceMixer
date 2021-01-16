@@ -49,7 +49,7 @@ DistanceMixer {
 
 	makeGUI {
 
-		win = Window("Distance Mixer", 100@700, scroll: false).front;
+		win = Window("Distance Mixer", 100@700, scroll: true).front;
 		win.onClose_({
 			numviews.do({|n|
 				synthList[n].free
@@ -241,7 +241,7 @@ DistanceMixer {
 
 		//load save reset
 
-		dialogbtn = 3.collect{|n|
+		dialogbtn = 4.collect{|n|
 			Button(/*btncomp*/)
 			.maxWidth_(60);
 		};
@@ -292,6 +292,12 @@ DistanceMixer {
 			}
 		});
 
+				dialogbtn[3]
+		.states_([["OSC"]])
+		.action_({
+			this.oscTest
+			});
+
 		viewLay = HLayout(*views);
 		dialogbtnLay = HLayout(HLayout(*dialogbtn), []);
 
@@ -305,7 +311,7 @@ DistanceMixer {
 		var playTxt, distTxt, bufTxt, thetaTxt, phiTxt, rateTxt;
 		var playBtn, distBtn, bufBtn, thetaBtn, phiBtn, rateBtn;
 
-		oscWin = Window("osc", resizable: true, scroll: true)
+		oscWin = Window("OSC Receive", 700@700, resizable: true, scroll: true)
 		.alpha_(0.85)
 		.front;
 
@@ -494,6 +500,7 @@ DistanceMixer {
 
 		oscWinLay = HLayout(*oscView);
 		oscWin.layout_(oscWinLay);
+		oscWin.onClose_{OSCdef.freeAll};
 	}
 
 }
